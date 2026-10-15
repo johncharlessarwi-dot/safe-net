@@ -1,0 +1,206 @@
+services:
+  # MariaDB — host network, port 3302 on 127.0.0.1 only (web, FreeRADIUS and phpMyAdmin all connect locally;
+  # it must never be reachable from the internet)
+  db:
+    image: mariadb:10.11
+    container_name: safenet-db
+    restart: unless-stopped
+    network_mode: host
+    command: ["mariadbd", "--port=3302", "--bind-address=127.0.0.1"]
+    environment:
+      # Required: MariaDB refuses uninitialized root; never use empty passwords.
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Set DB_ROOT_PASSWORD in .env}
+      MYSQL_DATABASE: ${DB_NAME:-radius}
+      MYSQL_USER: ${DB_USER:-radius}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    healthcheck:
+      # Official script: uses Unix socket as mysql user (no root password in process list).
+      # First init + schema.sql can take minutes on slow disks; start_period avoids false "unhealthy".
+      test: ["CMD", "healthcheck.sh", "--su-mysql", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 180s
+
+  # phpMyAdmin — host network; login form (no PMA_USER/PMA_PASSWORD).
+  # Listens on 127.0.0.1:8081 only. Open it through SSH:  ssh -L 8081:127.0.0.1:8081 <server>  then http://localhost:8081
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: safenet-phpmyadmin
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      TZ: ${TZ:-Africa/Nairobi}
+      PMA_HOST: 127.0.0.1
+      PMA_PORT: 3302
+      APACHE_PORT: 8081
+      UPLOAD_LIMIT: 300M
+      MAX_EXECUTION_TIME: 600
+    depends_on:
+      db:
+        condition: service_healthy
+    # Official image defaults to :80; force :8081 under host networking.
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        sed -i 's/^Listen .*80$/Listen 127.0.0.1:8081/' /etc/apache2/ports.conf
+        sed -i 's/:80>/:8081>/g' /etc/apache2/sites-enabled/*.conf 2>/dev/null || true
+        exec /docker-entrypoint.sh apache2-foreground
+
+  # Flask Web Application — host network (DNS + SMTP use the host resolver)
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      network: host
+    image: safenet-web
+    pull_policy: never
+    container_name: safenet-web
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      TZ: ${TZ:-Africa/Nairobi}
+      # Meraki CoA (Change of Authorization / Disconnect)
+      MERAKI_COA_HOST: ${MERAKI_COA_HOST:-n260.meraki.com}
+      MERAKI_COA_PORT: ${MERAKI_COA_PORT:-3799}
+      MERAKI_COA_SECRET: ${MERAKI_COA_SECRET:-JRIIT-fr33.}
+      FLASK_APP: app.py
+      FLASK_ENV: ${FLASK_ENV:-production}
+      # Signs logins and emailed links: must be a long random value in .env
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in .env}
+      DATA_ENCRYPTION_KEY: ${DATA_ENCRYPTION_KEY:-}
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3302
+      DB_NAME: ${DB_NAME:-radius}
+      DB_USER: ${DB_USER:-radius}
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      RADIUS_SECRET: ${RADIUS_SECRET:-testing123}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123@SafeNet}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-meenacharles22@gmail.com}
+      # Bandwidth alert email (SMTP - e.g. mail.safezonetz.com)
+      MAIL_SERVER: ${MAIL_SERVER:-schoolhub.space}
+      MAIL_PORT: ${MAIL_PORT:-465}
+      MAIL_USE_SSL: ${MAIL_USE_SSL:-}
+      MAIL_USERNAME: ${MAIL_USERNAME:-safenet@safezonetz.com}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_DEFAULT_SENDER: ${MAIL_DEFAULT_SENDER:-safenet@safezonetz.com}
+      BANDWIDTH_ALERT_FALLBACK_EMAIL: ${BANDWIDTH_ALERT_FALLBACK_EMAIL:-}
+      # SMS confirmations (NextSMS)
+      NEXTSMS_USERNAME: ${NEXTSMS_USERNAME:-}
+      NEXTSMS_PASSWORD: ${NEXTSMS_PASSWORD:-}
+      NEXTSMS_SENDER_ID: ${NEXTSMS_SENDER_ID:-}
+      # Guest portal (/portal) and printed voucher branding
+      HOTSPOT_NAME: ${HOTSPOT_NAME:-SafeNet WiFi}
+      HOTSPOT_SSID: ${HOTSPOT_SSID:-}
+      HOTSPOT_SUPPORT: ${HOTSPOT_SUPPORT:-}
+      HOTSPOT_CURRENCY: ${HOTSPOT_CURRENCY:-TZS}
+      # ClickPesa payments + captive-portal gateway API
+      CLICKPESA_CLIENT_ID: ${CLICKPESA_CLIENT_ID:-}
+      CLICKPESA_API_KEY: ${CLICKPESA_API_KEY:-}
+      CLICKPESA_CHECKSUM_KEY: ${CLICKPESA_CHECKSUM_KEY:-}
+      PORTAL_API_KEY: ${PORTAL_API_KEY:-}
+      PAYMENT_NETWORKS: ${PAYMENT_NETWORKS:-mixx:1000,airtel,halopesa}
+      SNIPPE_API_KEY: ${SNIPPE_API_KEY:-}
+      SNIPPE_WEBHOOK_KEY: ${SNIPPE_WEBHOOK_KEY:-}
+      SNIPPE_NETWORKS: ${SNIPPE_NETWORKS:-mpesa,mixx,airtel,halopesa}
+      PAYMENT_PROVIDER: ${PAYMENT_PROVIDER:-snippe}
+      # Omada Controller hosted by SafeNet (hotspot operator it logs in as)
+      OMADA_HOSTED_URL: ${OMADA_HOSTED_URL:-}
+      OMADA_HOSTED_USER: ${OMADA_HOSTED_USER:-}
+      OMADA_HOSTED_PASSWORD: ${OMADA_HOSTED_PASSWORD:-}
+      OMADA_OPENAPI_CLIENT_ID: ${OMADA_OPENAPI_CLIENT_ID:-}
+      OMADA_OPENAPI_CLIENT_SECRET: ${OMADA_OPENAPI_CLIENT_SECRET:-}
+      # Multi-tenant signup
+      PUBLIC_URL: ${PUBLIC_URL:-https://radius.safezonetz.com}
+      SIGNUP_ENABLED: ${SIGNUP_ENABLED:-true}
+      TRIAL_DAYS: ${TRIAL_DAYS:-14}
+      PLATFORM_FEE_PERCENT: ${PLATFORM_FEE_PERCENT:-3}
+      SMS_PRICE: ${SMS_PRICE:-30}
+      MIN_WITHDRAWAL: ${MIN_WITHDRAWAL:-5000}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - radius_logs:/var/log/freeradius:ro
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 10 &&
+        flask init-db &&
+        gunicorn --bind 0.0.0.0:5001 --workers 4 --timeout 120 app:app
+      "
+
+  # FreeRADIUS — host network; entrypoint bind-mounted (no rebuild needed for config fixes)
+  freeradius:
+    build:
+      context: .
+      dockerfile: freeradius/Dockerfile
+      network: host
+    image: safenet-freeradius
+    pull_policy: never
+    container_name: safenet-radius
+    restart: unless-stopped
+    network_mode: host
+    entrypoint: ["/bin/bash", "/docker-entrypoint.sh"]
+    command: ["freeradius", "-f"]
+    environment:
+      TZ: ${TZ:-Africa/Nairobi}
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3302
+      DB_NAME: ${DB_NAME:-radius}
+      DB_USER: ${DB_USER:-radius}
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      RADIUS_SECRET: ${RADIUS_SECRET:-SiriNywila321}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./freeradius/clients.conf:/etc/freeradius/3.0/clients.conf:ro
+      - ./freeradius/radiusd.conf:/etc/freeradius/3.0/radiusd.conf:ro
+      - ./freeradius/default-server:/etc/freeradius/3.0/sites-available/default:ro
+      - ./freeradius/dynamic-clients:/etc/freeradius/3.0/sites-enabled/dynamic-clients:ro
+      - ./freeradius/mods-available/sql.template:/etc/freeradius/3.0/mods-available/sql.template:ro
+      - ./freeradius/docker-entrypoint.sh:/docker-entrypoint.sh:ro
+      - ./freeradius/render-freeradius-sql.py:/usr/local/bin/render-freeradius-sql.py:ro
+      - radius_logs:/var/log/freeradius
+
+  # VPN hub for tenants' routers (MikroTik etc.): WireGuard on UDP 51820
+  wireguard:
+    build:
+      context: .
+      dockerfile: wireguard/Dockerfile
+      network: host
+    image: safenet-wireguard
+    pull_policy: never
+    container_name: safenet-wireguard
+    restart: unless-stopped
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+    environment:
+      TZ: ${TZ:-Africa/Nairobi}
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3302
+      DB_NAME: ${DB_NAME:-radius}
+      DB_USER: ${DB_USER:-radius}
+      DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
+      WG_PORT: ${WG_PORT:-51820}
+      WG_SERVER_ADDRESS: ${WG_SERVER_ADDRESS:-10.200.0.1/16}
+    volumes:
+      - wg_data:/data
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  wg_data:
+    driver: local
+  db_data:
+    driver: local
+  radius_logs:
+    driver: local
