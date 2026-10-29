@@ -25,10 +25,30 @@ _PATTERNS = (
 
 
 def _secrets():
-    values = (Config.CLICKPESA_CLIENT_ID, Config.CLICKPESA_API_KEY, Config.CLICKPESA_CHECKSUM_KEY,
-              getattr(Config, 'SNIPPE_API_KEY', ''), getattr(Config, 'SNIPPE_WEBHOOK_KEY', ''),
-              getattr(Config, 'NEXTSMS_PASSWORD', ''), getattr(Config, 'NEXTSMS_USERNAME', ''))
-    return [v for v in values if v and len(v) >= 6]
+    # Redact application credentials too: provider exceptions can echo arbitrary
+    # request/configuration details, not only the provider's own API keys.
+    values = (
+        Config.SECRET_KEY,
+        Config.DB_PASSWORD,
+        Config.RADIUS_SECRET,
+        Config.ADMIN_PASSWORD,
+        Config.DATA_ENCRYPTION_KEY,
+        Config.CLICKPESA_CLIENT_ID,
+        Config.CLICKPESA_API_KEY,
+        Config.CLICKPESA_CHECKSUM_KEY,
+        Config.PORTAL_API_KEY,
+        Config.OMADA_HOSTED_PASSWORD,
+        Config.OMADA_OPENAPI_CLIENT_SECRET,
+        Config.MAIL_PASSWORD,
+        Config.NEXTSMS_PASSWORD,
+        Config.NEXTSMS_USERNAME,
+        Config.SNIPPE_API_KEY,
+        Config.SNIPPE_WEBHOOK_KEY,
+    )
+    return list(dict.fromkeys(
+        value for value in values
+        if isinstance(value, str) and len(value) >= 6
+    ))
 
 
 def clean(text, extra_secrets=()):
