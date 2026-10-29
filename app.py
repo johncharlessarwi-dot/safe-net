@@ -5902,7 +5902,10 @@ def snippe_webhook():
         event = json.loads(raw or b'{}')
     except ValueError:
         return jsonify(error='bad json'), 400
-    ref = str(((event.get('data') or {}).get('reference')) or '')[:64]
+    try:
+        ref = snippe.webhook_reference(event)
+    except ValueError:
+        return jsonify(error='bad payload'), 400
     if not ref:
         return jsonify(received=True)
     payment = Payment.query.filter_by(provider='snippe', provider_id=ref).first()
