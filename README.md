@@ -1002,9 +1002,9 @@ Their tools and documentation make projects like SafeNet possible.
 
 </div>
 
-## Project maintainer
+## Related developer profile
 
-SafeNet RADIUS Manager is maintained by [John Charles Sarwi](https://john-charles-sarwi-portfolio.vercel.app/), a software developer in Tanzania.
+Explore additional software projects and development work associated with this GitHub account:
 
-- **Developer portfolio:** https://john-charles-sarwi-portfolio.vercel.app/
-- **GitHub:** https://github.com/johncharlessarwi-dot
+- **Portfolio:** https://john-charles-sarwi-portfolio.vercel.app/
+- **GitHub profile:** https://github.com/johncharlessarwi-dot
