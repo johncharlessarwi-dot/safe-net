@@ -96,6 +96,18 @@ def get_payment(snippe_reference, creds):
         raise
 
 
+
+def webhook_reference(event):
+    """Return a validated webhook reference, rejecting non-object payload shapes."""
+    if not isinstance(event, dict):
+        raise ValueError('webhook payload must be an object')
+    data = event.get('data')
+    if not isinstance(data, dict):
+        raise ValueError('webhook data must be an object')
+    reference = data.get('reference')
+    return str(reference or '')[:64]
+
+
 def verify_webhook(raw_body, timestamp, signature, signing_key, now=None):
     """True if the webhook really comes from Snippe (and is recent)."""
     if not (raw_body is not None and timestamp and signature and signing_key):
