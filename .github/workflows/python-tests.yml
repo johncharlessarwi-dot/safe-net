@@ -1,0 +1,31 @@
+name: SafeNet Python tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: safenet-python-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install minimal test dependency
+        run: python -m pip install python-dotenv
+      - name: Run webhook unit tests
+        env:
+          DB_PASSWORD: unit-test-only-password
+        run: python -m unittest discover -s tests -p "test_*.py" -v
