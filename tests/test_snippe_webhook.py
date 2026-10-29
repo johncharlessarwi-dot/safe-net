@@ -1,4 +1,8 @@
+import os
 import unittest
+
+# Config requires a database password at import time; keep tests self-contained.
+os.environ.setdefault('DB_PASSWORD', 'unit-test-only-password')
 
 import snippe
 
