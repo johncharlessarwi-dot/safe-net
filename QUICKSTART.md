@@ -20,13 +20,15 @@ cp .env.example .env
 nano .env
 ```
 
-**Minimum required changes:**
+**Required settings — generate unique random values for every secret:**
 
 ```env
-SECRET_KEY=your-random-secret-key-here
-DB_PASSWORD=your-database-password
-RADIUS_SECRET=your-radius-secret
-ADMIN_PASSWORD=your-admin-password
+SECRET_KEY=<unique-random-secret>
+DB_PASSWORD=<unique-database-password>
+RADIUS_SECRET=<unique-shared-radius-secret>
+ADMIN_USERNAME=<your-admin-username>
+ADMIN_PASSWORD=<unique-admin-password>
+MERAKI_COA_SECRET=<unique-meraki-coa-secret>
 ```
 
 ### 2. Start Services
@@ -52,9 +54,7 @@ All four services should show "Up" status:
 
 Open browser: **http://localhost:5000**
 
-Login with:
-- Username: `admin` (or your `ADMIN_USERNAME`)
-- Password: `admin123` (or your `ADMIN_PASSWORD`)
+Login with the exact `ADMIN_USERNAME` and `ADMIN_PASSWORD` values configured in your `.env` file. No default administrator credentials are provided.
 
 ### 4. Access phpMyAdmin (Optional)
 
@@ -108,7 +108,7 @@ Login credentials:
 
 ```bash
 # Test from server
-docker exec -it safenet-radius radtest testuser testpass123 localhost 0 testing123
+docker exec -it safenet-radius sh -lc 'radtest testuser testpass123 localhost 0 "$RADIUS_SECRET"'
 
 # Expected output: "Access-Accept"
 ```
@@ -165,7 +165,7 @@ docker-compose exec web flask init-db
 docker exec -it safenet-radius freeradius -X
 
 # Test authentication in another terminal
-docker exec -it safenet-radius radtest testuser testpass123 localhost 0 testing123
+docker exec -it safenet-radius sh -lc 'radtest testuser testpass123 localhost 0 "$RADIUS_SECRET"'
 ```
 
 ## Next Steps
