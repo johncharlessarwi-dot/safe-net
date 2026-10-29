@@ -67,7 +67,7 @@ services:
       # Meraki CoA (Change of Authorization / Disconnect)
       MERAKI_COA_HOST: ${MERAKI_COA_HOST:-n260.meraki.com}
       MERAKI_COA_PORT: ${MERAKI_COA_PORT:-3799}
-      MERAKI_COA_SECRET: ${MERAKI_COA_SECRET:-JRIIT-fr33.}
+      MERAKI_COA_SECRET: ${MERAKI_COA_SECRET:?Set MERAKI_COA_SECRET in .env}
       FLASK_APP: app.py
       FLASK_ENV: ${FLASK_ENV:-production}
       # Signs logins and emailed links: must be a long random value in .env
@@ -78,9 +78,9 @@ services:
       DB_NAME: ${DB_NAME:-radius}
       DB_USER: ${DB_USER:-radius}
       DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
-      RADIUS_SECRET: ${RADIUS_SECRET:-testing123}
-      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123@SafeNet}
+      RADIUS_SECRET: ${RADIUS_SECRET:?Set RADIUS_SECRET in .env}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:?Set ADMIN_USERNAME in .env}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Set ADMIN_PASSWORD in .env}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-meenacharles22@gmail.com}
       # Bandwidth alert email (SMTP - e.g. mail.safezonetz.com)
       MAIL_SERVER: ${MAIL_SERVER:-schoolhub.space}
@@ -155,7 +155,7 @@ services:
       DB_NAME: ${DB_NAME:-radius}
       DB_USER: ${DB_USER:-radius}
       DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
-      RADIUS_SECRET: ${RADIUS_SECRET:-SiriNywila321}
+      RADIUS_SECRET: ${RADIUS_SECRET:?Set RADIUS_SECRET in .env}
     depends_on:
       db:
         condition: service_healthy
