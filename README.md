@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="assets/readme/project-motion.svg" width="100%" alt="SAFENET RADIUS animated overview banner" />
+</div>
+
 # 🌐 SafeNet RADIUS Manager
 
 <div align="center">
