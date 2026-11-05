@@ -113,13 +113,18 @@ def verify_webhook(raw_body, timestamp, signature, signing_key, now=None):
     if not (raw_body is not None and timestamp and signature and signing_key):
         return False
     try:
-        if abs((now or time.time()) - int(timestamp)) > WEBHOOK_TOLERANCE:
+        current_time = time.time() if now is None else now
+        if abs(current_time - int(timestamp)) > WEBHOOK_TOLERANCE:
             return False
-    except (TypeError, ValueError):
+        if not isinstance(raw_body, (str, bytes)) or not isinstance(signature, str):
+            return False
+        if not isinstance(signing_key, str):
+            return False
+        body = raw_body.decode('utf-8') if isinstance(raw_body, bytes) else raw_body
+        expected = hmac.new(signing_key.encode(), f'{timestamp}.{body}'.encode(), hashlib.sha256).hexdigest()
+        return hmac.compare_digest(expected, signature.strip().lower())
+    except (TypeError, ValueError, UnicodeError):
         return False
-    body = raw_body.decode('utf-8') if isinstance(raw_body, bytes) else raw_body
-    expected = hmac.new(signing_key.encode(), f'{timestamp}.{body}'.encode(), hashlib.sha256).hexdigest()
-    return hmac.compare_digest(expected, signature.strip().lower())
 
 
 # Payouts (disbursements) from the account's balance: to a mobile-money wallet or a bank account.
