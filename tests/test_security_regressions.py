@@ -71,3 +71,7 @@ class SecurityRegressionTests(unittest.TestCase):
     def test_webhook_reference_rejects_missing_data_object(self):
         with self.assertRaises(ValueError):
             snippe.webhook_reference({'data': 'PAY-001'})
+
+    def test_webhook_reference_rejects_non_object_event(self):
+        with self.assertRaises(ValueError):
+            snippe.webhook_reference(['PAY-001'])
