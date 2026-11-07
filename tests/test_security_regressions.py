@@ -118,3 +118,6 @@ class SecurityRegressionTests(unittest.TestCase):
 
     def test_signature_rejects_boolean_clock(self):
         self.assertFalse(snippe.verify_webhook(self.BODY, '1000', self.signature(), self.KEY, now=True))
+
+    def test_error_redaction_accepts_numeric_extra_secrets(self):
+        self.assertIsInstance(safetext.clean('provider unavailable', extra_secrets=[12345, None]), str)
