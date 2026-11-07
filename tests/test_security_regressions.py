@@ -131,3 +131,7 @@ class SecurityRegressionTests(unittest.TestCase):
     def test_clickpesa_ignores_invalid_payment_rows(self):
         with patch.object(clickpesa, '_auth_header', return_value='Bearer test'), patch.object(clickpesa, '_request', return_value=[None, 'bad']):
             self.assertIsNone(clickpesa.query_payment('ref-1'))
+
+    def test_clickpesa_ignores_invalid_payout_rows(self):
+        with patch.object(clickpesa, '_auth_header', return_value='Bearer test'), patch.object(clickpesa, '_request', return_value=[None, 'bad']):
+            self.assertIsNone(clickpesa.query_payout('ref-1'))
