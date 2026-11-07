@@ -103,3 +103,6 @@ class SecurityRegressionTests(unittest.TestCase):
 
     def test_signature_rejects_timestamp_with_newline(self):
         self.assertFalse(snippe.verify_webhook(self.BODY, '1000\\n', self.signature(), self.KEY, now=1000))
+
+    def test_signature_rejects_oversized_timestamp(self):
+        self.assertFalse(snippe.verify_webhook(self.BODY, '1' * 17, self.signature(), self.KEY, now=1000))
