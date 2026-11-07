@@ -19,3 +19,7 @@ class SecurityRegressionTests(unittest.TestCase):
         body = self.BODY if body is None else body
         return hmac.new(self.KEY.encode(), timestamp.encode() + b'.' + body, hashlib.sha256).hexdigest()
 
+
+    def test_webhook_reference_rejects_numeric_identifiers(self):
+        with self.assertRaises(ValueError):
+            snippe.webhook_reference({'data': {'reference': 12345}})
