@@ -94,3 +94,6 @@ class SecurityRegressionTests(unittest.TestCase):
 
     def test_signature_accepts_event_body_under_limit(self):
         self.assertTrue(snippe.verify_webhook(self.BODY, '1000', self.signature(), self.KEY, now=1000))
+
+    def test_signature_rejects_excessive_signing_key(self):
+        self.assertFalse(snippe.verify_webhook(self.BODY, '1000', self.signature(), 'k' * 4097, now=1000))
