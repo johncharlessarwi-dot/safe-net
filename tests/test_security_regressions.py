@@ -124,3 +124,6 @@ class SecurityRegressionTests(unittest.TestCase):
 
     def test_error_redaction_masks_bearer_tokens(self):
         self.assertNotIn('abc123secret', safetext.clean('Bearer abc123secret'))
+
+    def test_error_redaction_limits_huge_message(self):
+        self.assertLessEqual(len(safetext.clean('x' * 50_000)), 16_384)
