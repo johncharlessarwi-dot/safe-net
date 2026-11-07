@@ -195,7 +195,8 @@ def query_payout(reference, creds=None):
             return None
         raise
     if isinstance(data, list):
-        return max(data, key=lambda r: r.get('updatedAt') or '') if data else None
+        valid = [r for r in data if isinstance(r, dict)]
+        return max(valid, key=lambda r: r.get('updatedAt') or '') if valid else None
     return data
 
 
