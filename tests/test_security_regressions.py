@@ -109,3 +109,6 @@ class SecurityRegressionTests(unittest.TestCase):
 
     def test_signature_rejects_nonfinite_clock(self):
         self.assertFalse(snippe.verify_webhook(self.BODY, '1000', self.signature(), self.KEY, now=float('nan')))
+
+    def test_signature_rejects_infinite_clock(self):
+        self.assertFalse(snippe.verify_webhook(self.BODY, '1000', self.signature(), self.KEY, now=float('inf')))
