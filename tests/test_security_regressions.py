@@ -75,3 +75,6 @@ class SecurityRegressionTests(unittest.TestCase):
     def test_webhook_reference_rejects_non_object_event(self):
         with self.assertRaises(ValueError):
             snippe.webhook_reference(['PAY-001'])
+
+    def test_signature_rejects_non_hexadecimal_digest(self):
+        self.assertFalse(snippe.verify_webhook(self.BODY, '1000', 'g' * 64, self.KEY, now=1000))
