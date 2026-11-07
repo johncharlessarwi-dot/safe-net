@@ -115,3 +115,6 @@ class SecurityRegressionTests(unittest.TestCase):
 
     def test_signature_rejects_negative_timestamp(self):
         self.assertFalse(snippe.verify_webhook(self.BODY, '-1000', self.signature(timestamp='-1000'), self.KEY, now=-1000))
+
+    def test_signature_rejects_boolean_clock(self):
+        self.assertFalse(snippe.verify_webhook(self.BODY, '1000', self.signature(), self.KEY, now=True))
