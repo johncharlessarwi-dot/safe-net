@@ -109,6 +109,8 @@ def webhook_reference(event):
         return ''
     if not isinstance(reference, str):
         raise ValueError('webhook reference must be a string')
+    if not reference.strip():
+        return ''
     return reference[:64]
 
 
