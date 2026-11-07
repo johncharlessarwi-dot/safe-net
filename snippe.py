@@ -113,7 +113,9 @@ def webhook_reference(event):
         return ''
     if any(ord(char) < 32 or ord(char) == 127 for char in reference):
         raise ValueError('webhook reference contains control characters')
-    return reference[:64]
+    if len(reference) > 64:
+        raise ValueError('webhook reference exceeds 64 characters')
+    return reference
 
 
 def verify_webhook(raw_body, timestamp, signature, signing_key, now=None):
