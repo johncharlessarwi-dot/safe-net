@@ -44,3 +44,7 @@ class SecurityRegressionTests(unittest.TestCase):
 
     def test_webhook_reference_allows_plain_identifier(self):
         self.assertEqual(snippe.webhook_reference({'data': {'reference': 'PAY-001'}}), 'PAY-001')
+
+    def test_webhook_reference_rejects_null_byte(self):
+        with self.assertRaises(ValueError):
+            snippe.webhook_reference({'data': {'reference': 'PAY\\x00spoof'}})
