@@ -38,3 +38,6 @@ class SecurityRegressionTests(unittest.TestCase):
 
     def test_webhook_reference_allows_missing_identifier(self):
         self.assertEqual(snippe.webhook_reference({'data': {}}), '')
+
+    def test_webhook_reference_allows_empty_identifier(self):
+        self.assertEqual(snippe.webhook_reference({'data': {'reference': ''}}), '')
