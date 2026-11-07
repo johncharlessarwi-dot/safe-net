@@ -123,6 +123,8 @@ def verify_webhook(raw_body, timestamp, signature, signing_key, now=None):
     if not (raw_body is not None and timestamp and signature and signing_key):
         return False
     try:
+        if not isinstance(timestamp, (str, int)) or not str(timestamp).isdigit() or len(str(timestamp)) > 16:
+            return False
         current_time = time.time() if now is None else now
         if abs(current_time - int(timestamp)) > WEBHOOK_TOLERANCE:
             return False
