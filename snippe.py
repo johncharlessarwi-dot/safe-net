@@ -105,7 +105,11 @@ def webhook_reference(event):
     if not isinstance(data, dict):
         raise ValueError('webhook data must be an object')
     reference = data.get('reference')
-    return str(reference or '')[:64]
+    if reference is None:
+        return ''
+    if not isinstance(reference, str):
+        raise ValueError('webhook reference must be a string')
+    return reference[:64]
 
 
 def verify_webhook(raw_body, timestamp, signature, signing_key, now=None):
