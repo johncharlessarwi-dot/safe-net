@@ -60,3 +60,7 @@ class SecurityRegressionTests(unittest.TestCase):
     def test_webhook_reference_rejects_tab(self):
         with self.assertRaises(ValueError):
             snippe.webhook_reference({'data': {'reference': 'PAY\\tspoof'}})
+
+    def test_webhook_reference_rejects_oversized_identifier(self):
+        with self.assertRaises(ValueError):
+            snippe.webhook_reference({'data': {'reference': 'x' * 65}})
