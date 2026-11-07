@@ -53,7 +53,8 @@ def _secrets():
 
 def clean(text, extra_secrets=()):
     """`text` with secrets and identifiers replaced by [hidden], and known errors explained."""
-    text = str(text or '')[:16_384]
+    text = text if isinstance(text, str) else str(text or '')
+    text = text[:16_384]
     for pattern, plain in FRIENDLY:
         if pattern.search(text):
             code = re.match(r'\s*(\d{3}):', text)
