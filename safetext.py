@@ -58,7 +58,7 @@ def clean(text, extra_secrets=()):
         if pattern.search(text):
             code = re.match(r'\s*(\d{3}):', text)
             return (f'{code.group(1)}: ' if code else '') + plain
-    for value in list(_secrets()) + [s for s in extra_secrets if s and len(s) >= 6]:
+    for value in list(_secrets()) + [s for s in extra_secrets if isinstance(s, str) and len(s) >= 6]:
         text = text.replace(value, '[hidden]')
     for pattern in _PATTERNS:
         if pattern.groups >= 2:
