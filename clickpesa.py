@@ -139,6 +139,9 @@ def query_payment(reference, creds=None):
     if isinstance(data, list):
         if not data:
             return None
+        data = [r for r in data if isinstance(r, dict)]
+        if not data:
+            return None
         paid = [r for r in data if r.get('status') in ('SUCCESS', 'SETTLED')]
         return paid[0] if paid else max(data, key=lambda r: r.get('updatedAt') or '')
     return data
