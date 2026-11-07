@@ -23,3 +23,7 @@ class SecurityRegressionTests(unittest.TestCase):
     def test_webhook_reference_rejects_numeric_identifiers(self):
         with self.assertRaises(ValueError):
             snippe.webhook_reference({'data': {'reference': 12345}})
+
+    def test_webhook_reference_rejects_boolean_identifiers(self):
+        with self.assertRaises(ValueError):
+            snippe.webhook_reference({'data': {'reference': True}})
