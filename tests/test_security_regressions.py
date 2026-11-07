@@ -78,3 +78,6 @@ class SecurityRegressionTests(unittest.TestCase):
 
     def test_signature_rejects_non_hexadecimal_digest(self):
         self.assertFalse(snippe.verify_webhook(self.BODY, '1000', 'g' * 64, self.KEY, now=1000))
+
+    def test_signature_rejects_truncated_digest(self):
+        self.assertFalse(snippe.verify_webhook(self.BODY, '1000', self.signature()[:32], self.KEY, now=1000))
