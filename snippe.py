@@ -128,7 +128,7 @@ def verify_webhook(raw_body, timestamp, signature, signing_key, now=None):
             return False
         if not isinstance(raw_body, (str, bytes)) or not isinstance(signature, str):
             return False
-        if not isinstance(signing_key, str):
+        if not isinstance(signing_key, str) or len(signing_key) > 4096:
             return False
         if len(signature.strip()) != 64 or any(c not in '0123456789abcdefABCDEF' for c in signature.strip()):
             return False
