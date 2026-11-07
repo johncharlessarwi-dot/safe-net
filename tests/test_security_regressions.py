@@ -84,3 +84,6 @@ class SecurityRegressionTests(unittest.TestCase):
 
     def test_signature_rejects_oversized_digest(self):
         self.assertFalse(snippe.verify_webhook(self.BODY, '1000', self.signature() + '00', self.KEY, now=1000))
+
+    def test_signature_accepts_uppercase_hex(self):
+        self.assertTrue(snippe.verify_webhook(self.BODY, '1000', self.signature().upper(), self.KEY, now=1000))
