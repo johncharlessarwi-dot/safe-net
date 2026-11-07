@@ -121,3 +121,6 @@ class SecurityRegressionTests(unittest.TestCase):
 
     def test_error_redaction_accepts_numeric_extra_secrets(self):
         self.assertIsInstance(safetext.clean('provider unavailable', extra_secrets=[12345, None]), str)
+
+    def test_error_redaction_masks_bearer_tokens(self):
+        self.assertNotIn('abc123secret', safetext.clean('Bearer abc123secret'))
