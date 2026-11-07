@@ -111,6 +111,8 @@ def webhook_reference(event):
         raise ValueError('webhook reference must be a string')
     if not reference.strip():
         return ''
+    if any(ord(char) < 32 or ord(char) == 127 for char in reference):
+        raise ValueError('webhook reference contains control characters')
     return reference[:64]
 
 
