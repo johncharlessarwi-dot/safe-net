@@ -51,7 +51,7 @@ class SecurityRegressionTests(unittest.TestCase):
 
     def test_webhook_reference_rejects_newline(self):
         with self.assertRaises(ValueError):
-            snippe.webhook_reference({'data': {'reference': 'PAY\\nspoof'}})
+            snippe.webhook_reference({'data': {'reference': 'PAY\nspoof'}})
 
     def test_webhook_reference_rejects_carriage_return(self):
         with self.assertRaises(ValueError):
