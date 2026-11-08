@@ -112,6 +112,8 @@ def webhook_reference(event):
         raise ValueError('webhook reference must be a string')
     if not reference.strip():
         return ''
+    if reference != reference.strip():
+        raise ValueError('webhook reference contains surrounding whitespace')
     if any(unicodedata.category(char) in ('Cc', 'Cf', 'Zl', 'Zp') for char in reference):
         raise ValueError('webhook reference contains control characters')
     if len(reference) > 64:
