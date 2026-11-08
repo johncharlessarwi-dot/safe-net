@@ -13,6 +13,8 @@ A_USER_NAME, A_FRAMED_IP, A_ACCT_SESSION_ID = 1, 8, 44
 
 
 def _attr(kind, value):
+    if len(value) > 253:
+        raise ValueError('RADIUS attribute exceeds maximum payload length')
     return struct.pack('!BB', kind, len(value) + 2) + value
 
 
