@@ -10,6 +10,7 @@ import hashlib
 import hmac
 import json
 import time
+import unicodedata
 import urllib.error
 import urllib.request
 from collections import namedtuple
@@ -111,7 +112,7 @@ def webhook_reference(event):
         raise ValueError('webhook reference must be a string')
     if not reference.strip():
         return ''
-    if any(ord(char) < 32 or ord(char) == 127 for char in reference):
+    if any(unicodedata.category(char) in ('Cc', 'Cf', 'Zl', 'Zp') for char in reference):
         raise ValueError('webhook reference contains control characters')
     if len(reference) > 64:
         raise ValueError('webhook reference exceeds 64 characters')
