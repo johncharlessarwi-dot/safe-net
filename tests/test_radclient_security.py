@@ -40,6 +40,12 @@ class RadiusPacketSecurityTests(unittest.TestCase):
                 with self.subTest(port=port):
                     self.assertEqual(radclient.disconnect('127.0.0.1', 'testsecret', 'user', port=port)[0], False)
         socket_factory.assert_not_called()
+    def test_rejects_session_id_control_characters(self):
+        with patch.object(radclient.socket, 'socket') as socket_factory:
+            ok, message = radclient.disconnect('127.0.0.1', 'testsecret', 'user', session_id='abc\\nunsafe')
+        self.assertFalse(ok)
+        self.assertEqual(message, 'invalid session id')
+        socket_factory.assert_not_called()
 
 if __name__ == '__main__':
     unittest.main()
