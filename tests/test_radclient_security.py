@@ -58,6 +58,12 @@ class RadiusPacketSecurityTests(unittest.TestCase):
                 with self.subTest(tries=tries):
                     self.assertFalse(radclient.disconnect('127.0.0.1', 'testsecret', 'user', tries=tries)[0])
         socket_factory.assert_not_called()
+    def test_rejects_malformed_framed_ip_without_socket(self):
+        with patch.object(radclient.socket, 'socket') as socket_factory:
+            ok, message = radclient.disconnect('127.0.0.1', 'testsecret', 'user', framed_ip='not-an-ip')
+        self.assertFalse(ok)
+        self.assertEqual(message, 'invalid framed IP')
+        socket_factory.assert_not_called()
 
 if __name__ == '__main__':
     unittest.main()
