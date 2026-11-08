@@ -28,5 +28,5 @@ def decrypt(token):
         return ''
     try:
         return _fernet().decrypt(token.encode()).decode()
-    except (InvalidToken, ValueError):
+    except (InvalidToken, ValueError, UnicodeError):
         return ''
