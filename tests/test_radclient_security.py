@@ -6,6 +6,11 @@ import radclient
 
 
 class RadiusPacketSecurityTests(unittest.TestCase):
+    def test_accepts_maximum_size_radius_attribute(self):
+        attr = radclient._attr(radclient.A_USER_NAME, b'a' * 253)
+        self.assertEqual(len(attr), 255)
+        self.assertEqual(attr[1], 255)
+
     def test_rejects_oversized_attribute(self):
         with self.assertRaises(ValueError):
             radclient._attr(radclient.A_USER_NAME, b'a' * 254)
