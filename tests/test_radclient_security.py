@@ -46,6 +46,12 @@ class RadiusPacketSecurityTests(unittest.TestCase):
         self.assertFalse(ok)
         self.assertEqual(message, 'invalid session id')
         socket_factory.assert_not_called()
+    def test_rejects_invalid_timeouts_without_socket(self):
+        with patch.object(radclient.socket, 'socket') as socket_factory:
+            for timeout in (0, -1, True, '3', float('nan'), float('inf')):
+                with self.subTest(timeout=timeout):
+                    self.assertFalse(radclient.disconnect('127.0.0.1', 'testsecret', 'user', timeout=timeout)[0])
+        socket_factory.assert_not_called()
 
 if __name__ == '__main__':
     unittest.main()
