@@ -34,6 +34,12 @@ class RadiusPacketSecurityTests(unittest.TestCase):
             ok, _ = radclient.disconnect('127.0.0.1', 'testsecret', 'alice\\x00bob')
         self.assertFalse(ok)
         socket_factory.assert_not_called()
+    def test_rejects_invalid_udp_port(self):
+        with patch.object(radclient.socket, 'socket') as socket_factory:
+            for port in (0, 65536, True, '3799'):
+                with self.subTest(port=port):
+                    self.assertEqual(radclient.disconnect('127.0.0.1', 'testsecret', 'user', port=port)[0], False)
+        socket_factory.assert_not_called()
 
 if __name__ == '__main__':
     unittest.main()
