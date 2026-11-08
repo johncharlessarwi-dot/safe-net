@@ -15,7 +15,7 @@ class SecretboxSecurityTests(unittest.TestCase):
     def test_invalid_utf8_plaintext_fails_closed(self):
         key = Fernet.generate_key()
         with patch.object(secretbox.Config, 'DATA_ENCRYPTION_KEY', key):
-            bad_plaintext = Fernet(key).encrypt(b'\\xff').decode()
+            bad_plaintext = Fernet(key).encrypt(b'\xff').decode()
             self.assertEqual(secretbox.decrypt(bad_plaintext), '')
 
 
