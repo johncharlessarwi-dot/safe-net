@@ -24,7 +24,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install minimal test dependency
-        run: python -m pip install python-dotenv
+        run: python -m pip install python-dotenv cryptography
       - name: Run webhook unit tests
         env:
           DB_PASSWORD: unit-test-only-password
