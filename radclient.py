@@ -26,7 +26,7 @@ def disconnect(nas_ip, secret, username, session_id=None, framed_ip=None, port=3
         return False, 'invalid timeout'
     if isinstance(port, bool) or not isinstance(port, int) or not 1 <= port <= 65535:
         return False, 'invalid UDP port'
-    if not isinstance(secret, str) or not secret:
+    if not isinstance(secret, str) or not secret or len(secret) > 4096:
         return False, 'invalid shared secret'
     if not isinstance(username, str) or not username or len(username.encode()) > 253 or any(ord(c) < 32 or ord(c) == 127 for c in username):
         return False, 'invalid username'
