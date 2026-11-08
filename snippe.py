@@ -10,6 +10,7 @@ import hashlib
 import hmac
 import json
 import time
+import unicodedata
 import urllib.error
 import urllib.request
 from collections import namedtuple
@@ -111,7 +112,9 @@ def webhook_reference(event):
         raise ValueError('webhook reference must be a string')
     if not reference.strip():
         return ''
-    if any(ord(char) < 32 or ord(char) == 127 for char in reference):
+    if reference != reference.strip():
+        raise ValueError('webhook reference contains surrounding whitespace')
+    if any(unicodedata.category(char) in ('Cc', 'Cf', 'Zl', 'Zp') for char in reference):
         raise ValueError('webhook reference contains control characters')
     if len(reference) > 64:
         raise ValueError('webhook reference exceeds 64 characters')
@@ -134,13 +137,13 @@ def verify_webhook(raw_body, timestamp, signature, signing_key, now=None):
             return False
         if not isinstance(signing_key, str) or len(signing_key) > 4096:
             return False
-        if len(signature.strip()) != 64 or any(c not in '0123456789abcdefABCDEF' for c in signature.strip()):
+        if len(signature) != 64 or any(c not in '0123456789abcdefABCDEF' for c in signature):
             return False
         if len(raw_body) > 1_048_576:
             return False
         body = raw_body.decode('utf-8') if isinstance(raw_body, bytes) else raw_body
         expected = hmac.new(signing_key.encode(), f'{timestamp}.{body}'.encode(), hashlib.sha256).hexdigest()
-        return hmac.compare_digest(expected, signature.strip().lower())
+        return hmac.compare_digest(expected, signature.lower())
     except (TypeError, ValueError, UnicodeError):
         return False
 

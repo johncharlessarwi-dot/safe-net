@@ -20,13 +20,22 @@ def _fernet():
 
 
 def encrypt(value):
+    if value:
+        if not isinstance(value, str):
+            raise ValueError('credential must be a text value')
+        try:
+            encoded = value.encode('utf-8')
+        except UnicodeError as exc:
+            raise ValueError('credential has invalid text encoding') from exc
+        if len(encoded) > 16_384:
+            raise ValueError('credential exceeds maximum length')
     return _fernet().encrypt(value.encode()).decode() if value else None
 
 
 def decrypt(token):
-    if not token:
+    if not isinstance(token, str) or not token or len(token) > 65_536:
         return ''
     try:
         return _fernet().decrypt(token.encode()).decode()
-    except (InvalidToken, ValueError):
+    except (InvalidToken, ValueError, UnicodeError):
         return ''
