@@ -126,6 +126,9 @@ class SecurityRegressionTests(unittest.TestCase):
         secret = 'private-special-credential'
         self.assertNotIn(secret, safetext.clean('error ' + secret, extra_secrets=secret))
 
+    def test_error_redaction_accepts_no_extra_secrets(self):
+        self.assertEqual(safetext.clean('provider unavailable', extra_secrets=None), 'provider unavailable')
+
     def test_error_redaction_masks_bearer_tokens(self):
         self.assertNotIn('abc123secret', safetext.clean('Bearer abc123secret'))
 
