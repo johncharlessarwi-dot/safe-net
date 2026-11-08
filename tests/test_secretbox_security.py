@@ -12,6 +12,10 @@ class SecretboxSecurityTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             secretbox.encrypt('a' * 16_385)
 
+    def test_rejects_invalid_unicode_plaintext(self):
+        with self.assertRaises(ValueError):
+            secretbox.encrypt(chr(0xD800))
+
     def test_valid_ciphertext_round_trip(self):
         with patch.object(secretbox.Config, 'DATA_ENCRYPTION_KEY', Fernet.generate_key()):
             self.assertEqual(secretbox.decrypt(secretbox.encrypt('test-token')), 'test-token')
