@@ -20,7 +20,9 @@ def _attr(kind, value):
 
 def disconnect(nas_ip, secret, username, session_id=None, framed_ip=None, port=3799, timeout=3.0, tries=2):
     """Returns (ok, message)."""
-    attrs = _attr(A_USER_NAME, username.encode()[:253])
+    if not isinstance(username, str) or not username or len(username.encode()) > 253:
+        return False, 'invalid username'
+    attrs = _attr(A_USER_NAME, username.encode())
     if session_id:
         attrs += _attr(A_ACCT_SESSION_ID, session_id.encode()[:253])
     if framed_ip:
