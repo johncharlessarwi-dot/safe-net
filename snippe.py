@@ -134,13 +134,13 @@ def verify_webhook(raw_body, timestamp, signature, signing_key, now=None):
             return False
         if not isinstance(signing_key, str) or len(signing_key) > 4096:
             return False
-        if len(signature.strip()) != 64 or any(c not in '0123456789abcdefABCDEF' for c in signature.strip()):
+        if len(signature) != 64 or any(c not in '0123456789abcdefABCDEF' for c in signature):
             return False
         if len(raw_body) > 1_048_576:
             return False
         body = raw_body.decode('utf-8') if isinstance(raw_body, bytes) else raw_body
         expected = hmac.new(signing_key.encode(), f'{timestamp}.{body}'.encode(), hashlib.sha256).hexdigest()
-        return hmac.compare_digest(expected, signature.strip().lower())
+        return hmac.compare_digest(expected, signature.lower())
     except (TypeError, ValueError, UnicodeError):
         return False
 
