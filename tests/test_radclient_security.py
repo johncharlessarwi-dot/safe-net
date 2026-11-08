@@ -52,6 +52,12 @@ class RadiusPacketSecurityTests(unittest.TestCase):
                 with self.subTest(timeout=timeout):
                     self.assertFalse(radclient.disconnect('127.0.0.1', 'testsecret', 'user', timeout=timeout)[0])
         socket_factory.assert_not_called()
+    def test_rejects_invalid_retry_counts_without_socket(self):
+        with patch.object(radclient.socket, 'socket') as socket_factory:
+            for tries in (0, -1, 6, True, '2', 1.5):
+                with self.subTest(tries=tries):
+                    self.assertFalse(radclient.disconnect('127.0.0.1', 'testsecret', 'user', tries=tries)[0])
+        socket_factory.assert_not_called()
 
 if __name__ == '__main__':
     unittest.main()
