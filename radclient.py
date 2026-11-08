@@ -35,11 +35,11 @@ def disconnect(nas_ip, secret, username, session_id=None, framed_ip=None, port=3
         if not isinstance(session_id, str) or not session_id or len(session_id.encode()) > 253 or any(ord(c) < 32 or ord(c) == 127 for c in session_id):
             return False, 'invalid session id'
         attrs += _attr(A_ACCT_SESSION_ID, session_id.encode())
-    if framed_ip:
+    if framed_ip is not None:
         try:
             attrs += _attr(A_FRAMED_IP, socket.inet_aton(framed_ip))
-        except OSError:
-            pass
+        except (OSError, TypeError):
+            return False, 'invalid framed IP'
     ident = secrets.randbelow(256)
     header = struct.pack('!BBH', DISCONNECT_REQUEST, ident, 20 + len(attrs))
     authenticator = hashlib.md5(header + b'\0' * 16 + attrs + secret.encode()).digest()
