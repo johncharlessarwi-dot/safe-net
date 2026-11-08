@@ -23,6 +23,10 @@ class SecurityRegressionTests(unittest.TestCase):
     def test_signature_rejects_header_whitespace(self):
         self.assertFalse(snippe.verify_webhook(self.BODY, '1000', ' ' + self.signature(), self.KEY, now=1000))
 
+    def test_webhook_reference_rejects_zero_width_formatting(self):
+        with self.assertRaises(ValueError):
+            snippe.webhook_reference({'data': {'reference': 'PAY' + chr(0x200B) + '001'}})
+
     def test_webhook_reference_rejects_numeric_identifiers(self):
         with self.assertRaises(ValueError):
             snippe.webhook_reference({'data': {'reference': 12345}})
