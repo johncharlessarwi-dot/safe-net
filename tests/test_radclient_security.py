@@ -31,7 +31,7 @@ class RadiusPacketSecurityTests(unittest.TestCase):
         socket_factory.assert_not_called()
     def test_rejects_username_control_characters(self):
         with patch.object(radclient.socket, 'socket') as socket_factory:
-            ok, _ = radclient.disconnect('127.0.0.1', 'testsecret', 'alice\\x00bob')
+            ok, _ = radclient.disconnect('127.0.0.1', 'testsecret', 'alice' + chr(0) + 'bob')
         self.assertFalse(ok)
         socket_factory.assert_not_called()
     def test_rejects_invalid_udp_port(self):
