@@ -29,6 +29,11 @@ class RadiusPacketSecurityTests(unittest.TestCase):
         self.assertFalse(ok)
         self.assertEqual(message, 'invalid shared secret')
         socket_factory.assert_not_called()
+    def test_rejects_username_control_characters(self):
+        with patch.object(radclient.socket, 'socket') as socket_factory:
+            ok, _ = radclient.disconnect('127.0.0.1', 'testsecret', 'alice\\x00bob')
+        self.assertFalse(ok)
+        socket_factory.assert_not_called()
 
 if __name__ == '__main__':
     unittest.main()
