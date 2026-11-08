@@ -24,7 +24,7 @@ def encrypt(value):
 
 
 def decrypt(token):
-    if not isinstance(token, str) or not token:
+    if not isinstance(token, str) or not token or len(token) > 65_536:
         return ''
     try:
         return _fernet().decrypt(token.encode()).decode()
