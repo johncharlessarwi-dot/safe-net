@@ -20,6 +20,8 @@ def _fernet():
 
 
 def encrypt(value):
+    if value and (not isinstance(value, str) or len(value.encode()) > 16_384):
+        raise ValueError('credential must be a bounded text value')
     return _fernet().encrypt(value.encode()).decode() if value else None
 
 
