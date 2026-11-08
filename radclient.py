@@ -23,8 +23,10 @@ def disconnect(nas_ip, secret, username, session_id=None, framed_ip=None, port=3
     if not isinstance(username, str) or not username or len(username.encode()) > 253:
         return False, 'invalid username'
     attrs = _attr(A_USER_NAME, username.encode())
-    if session_id:
-        attrs += _attr(A_ACCT_SESSION_ID, session_id.encode()[:253])
+    if session_id is not None:
+        if not isinstance(session_id, str) or not session_id or len(session_id.encode()) > 253:
+            return False, 'invalid session id'
+        attrs += _attr(A_ACCT_SESSION_ID, session_id.encode())
     if framed_ip:
         try:
             attrs += _attr(A_FRAMED_IP, socket.inet_aton(framed_ip))
