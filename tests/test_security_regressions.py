@@ -27,6 +27,10 @@ class SecurityRegressionTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             snippe.webhook_reference({'data': {'reference': 'PAY' + chr(0x200B) + '001'}})
 
+    def test_webhook_reference_rejects_padded_identifier(self):
+        with self.assertRaises(ValueError):
+            snippe.webhook_reference({'data': {'reference': ' PAY-001 '}})
+
     def test_webhook_reference_rejects_numeric_identifiers(self):
         with self.assertRaises(ValueError):
             snippe.webhook_reference({'data': {'reference': 12345}})
