@@ -30,6 +30,10 @@ def disconnect(nas_ip, secret, username, session_id=None, framed_ip=None, port=3
         return False, 'invalid shared secret'
     if not isinstance(username, str) or not username or len(username.encode()) > 253 or any(ord(c) < 32 or ord(c) == 127 for c in username):
         return False, 'invalid username'
+    try:
+        secret_bytes = secret.encode('utf-8')
+    except UnicodeError:
+        return False, 'invalid shared secret'
     attrs = _attr(A_USER_NAME, username.encode())
     if session_id is not None:
         if not isinstance(session_id, str) or not session_id or len(session_id.encode()) > 253 or any(ord(c) < 32 or ord(c) == 127 for c in session_id):
@@ -42,7 +46,7 @@ def disconnect(nas_ip, secret, username, session_id=None, framed_ip=None, port=3
             return False, 'invalid framed IP'
     ident = secrets.randbelow(256)
     header = struct.pack('!BBH', DISCONNECT_REQUEST, ident, 20 + len(attrs))
-    authenticator = hashlib.md5(header + b'\0' * 16 + attrs + secret.encode()).digest()
+    authenticator = hashlib.md5(header + b'\0' * 16 + attrs + secret_bytes).digest()
     packet = header + authenticator + attrs
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
@@ -55,7 +59,7 @@ def disconnect(nas_ip, secret, username, session_id=None, framed_ip=None, port=3
                     continue
                 if len(reply) < 20 or reply[1] != ident:
                     continue
-                expected = hashlib.md5(reply[:4] + authenticator + reply[20:] + secret.encode()).digest()
+                expected = hashlib.md5(reply[:4] + authenticator + reply[20:] + secret_bytes).digest()
                 if expected != reply[4:20]:
                     return False, 'reply with wrong secret'
                 return (True, 'disconnected') if reply[0] == DISCONNECT_ACK else (False, 'router refused (NAK)')
