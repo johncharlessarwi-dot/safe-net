@@ -17,6 +17,9 @@ class SecretboxSecurityTests(unittest.TestCase):
             with self.subTest(token=token):
                 self.assertEqual(secretbox.decrypt(token), '')
 
+    def test_oversized_ciphertexts_fail_closed(self):
+        self.assertEqual(secretbox.decrypt('A' * 65_537), '')
+
     def test_invalid_utf8_plaintext_fails_closed(self):
         key = Fernet.generate_key()
         with patch.object(secretbox.Config, 'DATA_ENCRYPTION_KEY', key):
