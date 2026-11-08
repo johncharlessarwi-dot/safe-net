@@ -12,6 +12,11 @@ class SecretboxSecurityTests(unittest.TestCase):
         with patch.object(secretbox.Config, 'DATA_ENCRYPTION_KEY', Fernet.generate_key()):
             self.assertEqual(secretbox.decrypt(secretbox.encrypt('test-token')), 'test-token')
 
+    def test_non_string_ciphertexts_fail_closed(self):
+        for token in (True, 123, [], {}, b'raw-bytes'):
+            with self.subTest(token=token):
+                self.assertEqual(secretbox.decrypt(token), '')
+
     def test_invalid_utf8_plaintext_fails_closed(self):
         key = Fernet.generate_key()
         with patch.object(secretbox.Config, 'DATA_ENCRYPTION_KEY', key):
