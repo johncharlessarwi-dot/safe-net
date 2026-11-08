@@ -10,5 +10,12 @@ class RadiusPacketSecurityTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             radclient._attr(radclient.A_USER_NAME, b'a' * 254)
 
+    def test_rejects_oversized_username_without_socket(self):
+        with patch.object(radclient.socket, 'socket') as socket_factory:
+            ok, message = radclient.disconnect('127.0.0.1', 'testsecret', 'u' * 254)
+        self.assertFalse(ok)
+        self.assertEqual(message, 'invalid username')
+        socket_factory.assert_not_called()
+
 if __name__ == '__main__':
     unittest.main()
