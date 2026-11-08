@@ -20,6 +20,8 @@ def _attr(kind, value):
 
 def disconnect(nas_ip, secret, username, session_id=None, framed_ip=None, port=3799, timeout=3.0, tries=2):
     """Returns (ok, message)."""
+    if isinstance(timeout, bool) or not isinstance(timeout, (int, float)) or not 0 < timeout <= 30:
+        return False, 'invalid timeout'
     if isinstance(port, bool) or not isinstance(port, int) or not 1 <= port <= 65535:
         return False, 'invalid UDP port'
     if not isinstance(secret, str) or not secret:
