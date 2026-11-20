@@ -12,16 +12,6 @@
 
 <div align="center">
 
-<!-- 🌊 ANIMATED HERO HEADER -->
-<img src="https://capsule-render.vercel.app/api?type=waving&height=250&color=0:020024,25:090979,55:00D4FF,80:7B2FF7,100:FFD700&text=SafeNet%20RADIUS%20Manager&fontSize=38&fontColor=ffffff&animation=fadeIn&fontAlignY=38&desc=Secure%20Authentication%20%7C%20Network%20Intelligence%20%7C%20Centralized%20Control&descAlignY=60&descSize=14" width="100%" alt="SafeNet RADIUS Manager Animated Header"/>
-
-<!-- ⌨️ TYPING ANIMATION -->
-<a href="https://github.com/">
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=19&pause=1000&color=00D4FF&center=true&vCenter=true&width=850&lines=Manage+Network+Authentication+from+One+Dashboard;Built+with+Flask+%7C+FreeRADIUS+%7C+Docker;Multi-Vendor+Network+Infrastructure;Authentication+%7C+Authorization+%7C+Accounting;One+Platform.+Multiple+Vendors.+Centralized+Control." alt="Animated SafeNet Introduction"/>
-</a>
-
-<br/>
-
 <!-- 🏷️ PROJECT BADGES -->
 <img src="https://img.shields.io/badge/PROJECT-SafeNet%20RADIUS-090979?style=for-the-badge&logo=linux&logoColor=white" alt="Project"/>
 <img src="https://img.shields.io/badge/PYTHON-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python"/>
