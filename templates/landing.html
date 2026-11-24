@@ -1,5 +1,8 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>SafeNet RADIUS Manager</title></head>
-<body><main><h1>SafeNet RADIUS Manager</h1><a href="{{ url_for('login') }}">Sign in</a>
+<body><main><h1>SafeNet RADIUS Manager</h1><nav aria-label="Get started" style="display:flex;flex-wrap:wrap;gap:1rem">
+  <a href="{{ url_for('login') }}">Sign in</a>
+  <a href="{{ url_for('docs') }}">Setup guides</a>
+</nav>
 {% if plans %}<section><h2>Plans</h2>{% for plan in plans %}<article><h3>{{ plan.name }}</h3>{% if plan.description %}<p>{{ plan.description }}</p>{% endif %}<p>{{ plan.currency }} {{ plan.price }} per 30 days</p></article>{% endfor %}</section>{% endif %}
 </main><footer>Developed by John Charles Sarwi · <a href="https://wa.me/255698170989">Contact the developer on WhatsApp</a></footer></body></html>
